@@ -13,3 +13,8 @@ Cannot handle listings without an "Easy Apply" option
 Agent behavior could be more stable and resilient
 No application status tracking yet
 Contributions and ideas are more than welcome!
+
+
+
+Check the video below to see how it works
+https://youtu.be/H4REBCnLY48
