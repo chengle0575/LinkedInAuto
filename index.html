@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TinyFish Live Preview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #c4c4c4; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
+  </style>
+</head>
+<body class="flex h-screen overflow-hidden bg-gray-100">
+
+  <!-- Sidebar -->
+  <div class="w-[420px] min-w-[420px] h-screen bg-white border-r border-gray-200 flex flex-col">
+    <!-- Logo -->
+    <div class="px-5 py-4 border-b border-gray-200 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-gray-900">TinyFish Live Preview</h1>
+        <p class="text-xs text-gray-400">LinkedIn Job Automation</p>
+      </div>
+    </div>
+
+    <!-- Settings Card -->
+    <div class="px-4 py-4 flex-1 overflow-y-auto space-y-4">
+      <div class="rounded-xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 p-4 space-y-4">
+        <h2 class="text-xs uppercase font-semibold text-gray-400 tracking-wider">Configuration</h2>
+
+        <!-- Job Title -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-gray-700">Job Title</label>
+          <input
+            id="jobTitle"
+            type="text"
+            placeholder="e.g. Software Engineer"
+            value="Software Engineer"
+            class="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:border-indigo-400 focus:ring-1 focus:ring-indigo-200 outline-none transition-colors"
+          />
+        </div>
+
+        <!-- Experience Level -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-gray-700">Experience Level</label>
+          <select
+            id="experienceLevel"
+            class="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:border-indigo-400 focus:ring-1 focus:ring-indigo-200 outline-none transition-colors"
+          >
+            <option value="Internship">Internship</option>
+            <option value="Entry level">Entry Level</option>
+            <option value="Associate">Associate</option>
+            <option value="Mid-Senior level" selected>Mid-Senior Level</option>
+            <option value="Director">Director</option>
+            <option value="Executive">Executive</option>
+          </select>
+        </div>
+
+        <!-- Country -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-gray-700">Country</label>
+          <input
+            id="country"
+            type="text"
+            placeholder="e.g. United States"
+            value="United States"
+            class="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:border-indigo-400 focus:ring-1 focus:ring-indigo-200 outline-none transition-colors"
+          />
+        </div>
+
+        <!-- Resume Upload -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-gray-700">Resume (PDF)</label>
+          <label
+            id="resumeLabel"
+            class="flex items-center justify-center gap-2 w-full px-3 py-3 text-sm bg-white border border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/30 transition-colors"
+          >
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"/>
+            </svg>
+            <span id="resumeFileName" class="text-gray-400">Click to upload PDF</span>
+            <input
+              id="resumeFile"
+              type="file"
+              accept=".pdf"
+              class="hidden"
+              onchange="handleResumeSelect(this)"
+            />
+          </label>
+        </div>
+      </div>
+
+      <!-- Status Card -->
+      <div class="rounded-xl bg-white border border-gray-200 p-4 space-y-3">
+        <h2 class="text-xs uppercase font-semibold text-gray-400 tracking-wider">Status</h2>
+        <div class="flex items-center gap-2">
+          <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-gray-300 flex-shrink-0"></span>
+          <p id="status" class="text-sm text-gray-600">Ready to start.</p>
+        </div>
+      </div>
+
+      <!-- Result Card -->
+      <div id="resultCard" class="rounded-xl bg-white border border-gray-200 p-4 space-y-3 hidden">
+        <h2 class="text-xs uppercase font-semibold text-gray-400 tracking-wider">Result</h2>
+        <pre id="result" class="text-xs text-gray-700 bg-gray-50 rounded-lg p-3 overflow-auto max-h-60 whitespace-pre-wrap"></pre>
+      </div>
+    </div>
+
+    <!-- Start Button -->
+    <div class="px-4 py-4 border-t border-gray-200">
+      <button
+        id="startBtn"
+        onclick="start()"
+        class="w-full flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-full transition-colors"
+      >
+        <svg id="btnIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"/>
+        </svg>
+        <span id="btnText">Start Automation</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Panel -->
+  <div class="flex-1 h-screen bg-indigo-950 flex flex-col">
+    <!-- Top Bar -->
+    <div class="px-6 py-4 flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-indigo-200">Live Browser Preview</h2>
+      <div id="liveIndicator" class="hidden flex items-center gap-2">
+        <span class="relative flex h-2.5 w-2.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+        </span>
+        <span class="text-xs font-medium text-green-400">LIVE</span>
+      </div>
+    </div>
+
+    <!-- Preview Area -->
+    <div class="flex-1 px-6 pb-6">
+      <div class="w-full h-full rounded-xl overflow-hidden border border-indigo-800 bg-indigo-900 relative">
+        <!-- Placeholder -->
+        <div id="placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-indigo-400 space-y-3">
+          <svg class="w-16 h-16 opacity-30" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          <p class="text-sm opacity-50">Browser preview will appear here</p>
+        </div>
+        <!-- Loading Spinner -->
+        <div id="loading" class="absolute inset-0 flex flex-col items-center justify-center hidden">
+          <svg class="animate-spin w-8 h-8 text-indigo-400 mb-3" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          <p class="text-sm text-indigo-300">Connecting to browser session...</p>
+        </div>
+        <!-- Iframe -->
+        <iframe id="preview" class="absolute inset-0 w-full h-full border-none hidden"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Set pdf.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+    let _apiKey = "";
+
+    // Extract all text from a PDF file using pdf.js
+    async function extractPdfText(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pages = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        pages.push(content.items.map(item => item.str).join(" "));
+      }
+      return pages.join("\n");
+    }
+
+    let _resumeText = "";
+    let _resumeFileName = "";
+
+    // Handle resume file selection: extract text using pdf.js
+    async function handleResumeSelect(input) {
+      const file = input.files[0];
+      const label = document.getElementById("resumeFileName");
+      const status = document.getElementById("status");
+      const statusDot = document.getElementById("statusDot");
+
+      if (!file || file.type !== "application/pdf") {
+        if (file) alert("Please upload a PDF file.");
+        input.value = "";
+        _resumeText = "";
+        _resumeFileName = "";
+        label.textContent = "Click to upload PDF";
+        label.classList.remove("text-gray-700");
+        label.classList.add("text-gray-400");
+        return;
+      }
+
+      label.textContent = file.name;
+      label.classList.remove("text-gray-400");
+      label.classList.add("text-gray-700");
+
+      status.textContent = "Extracting resume text...";
+      statusDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0";
+
+      try {
+        _resumeText = await extractPdfText(file);
+        _resumeFileName = file.name;
+        status.textContent = "Resume extracted successfully.";
+        statusDot.className = "w-2.5 h-2.5 rounded-full bg-green-500 flex-shrink-0";
+      } catch (err) {
+        _resumeText = "";
+        status.textContent = "Error extracting PDF: " + err.message;
+        statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0";
+      }
+    }
+
+    // Load API key from server (.env) on page load
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch("/api/config");
+        const data = await res.json();
+        _apiKey = data.apiKey || "";
+        if (_apiKey) {
+          document.getElementById("status").textContent = "API key loaded. Ready to start.";
+        } else {
+          document.getElementById("status").textContent = "Warning: No API key found in .env";
+          document.getElementById("statusDot").className = "w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0";
+        }
+      } catch {}
+    });
+
+    async function start() {
+      const apiKey = _apiKey;
+      if (!apiKey) return alert("No API key found. Add TINYFISH_API_KEY to your .env file.");
+      if (!_resumeText) return alert("Please upload a resume PDF first.");
+
+      const jobTitle = document.getElementById("jobTitle").value.trim() || "Software Engineer";
+      const experienceLevel = document.getElementById("experienceLevel").value;
+      const country = document.getElementById("country").value.trim() || "United States";
+      const resumeText = _resumeText;
+
+      const targetUrl = "https://www.linkedin.com/login";
+
+      const goal = `Let user type in username and password manually. After user click the "log in" button, you should check if the login is successful.
+      Once logged in, you should act like a human with a bit slow movement.
+      You should click the "Jobs" icon on the head of the page if there is one. Then in the new page type the '${jobTitle}' in the job search bar and fill '${country}' in the location search bar on the right of the job searchbar.
+      Then, click the filter button with "experience level" or the one with closest meaning. Then click to select the closest match by experience level '${experienceLevel}' and click the blue button "show result" to apply it.
+      Then wait for 2 seconds.
+
+      The candidate's resume information is:
+      ${resumeText}
+
+      The candidate's resume file name is: ${_resumeFileName}
+
+      For the search result, you should follow these steps for each job listing on the first pages of the search result:
+      1. Check if the ${jobTitle} is included in the job title of the listing. If not, skip this listing and move on to the next listing.
+      2. For the second step, if there is a blue button "Easy Apply", click it.
+         Then you may ask to fill in contact information such as email and phone number, fill them in with the resume information above. Wait for 1 second, and click the "Next step" button.
+         Then you may be asked to attach your resume. You should select the latest one having the same name with ${_resumeFileName}. Then you should click the "blue button" on the linkedin form.
+         Then you may be asked to fill in some questions related to experience, skills and visa status. You should answer them based on the resume information above. After filling in the answers.
+         Click the "Submit application"
+         Click the "Finish" button if there is one after submission.
+         Wait for 2 seconds. 
+      2. If there is no "Easy Apply" button, skip this job listing and move on to the next listing.
+      
+      `
+      
+      const btn = document.getElementById("startBtn");
+      const btnText = document.getElementById("btnText");
+      const btnIcon = document.getElementById("btnIcon");
+      const status = document.getElementById("status");
+      const statusDot = document.getElementById("statusDot");
+      const result = document.getElementById("result");
+      const resultCard = document.getElementById("resultCard");
+      const placeholder = document.getElementById("placeholder");
+      const loading = document.getElementById("loading");
+      const preview = document.getElementById("preview");
+      const liveIndicator = document.getElementById("liveIndicator");
+
+      btn.disabled = true;
+      btnText.textContent = "Running...";
+      btnIcon.innerHTML = '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>';
+      btnIcon.classList.add("animate-spin");
+
+      status.textContent = "Starting automation...";
+      statusDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0";
+      resultCard.classList.add("hidden");
+      placeholder.classList.add("hidden");
+      loading.classList.remove("hidden");
+      preview.classList.add("hidden");
+      liveIndicator.classList.add("hidden");
+
+      try {
+        const res = await fetch("https://agent.tinyfish.ai/v1/automation/run-sse", {
+          method: "POST",
+          headers: {
+            "X-API-Key": apiKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: targetUrl, goal }),
+        });
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            let event;
+            try { event = JSON.parse(line.slice(6)); } catch { continue; }
+
+            switch (event.type) {
+              case "STREAMING_URL":
+                loading.classList.add("hidden");
+                preview.src = event.streaming_url;
+                preview.classList.remove("hidden");
+                liveIndicator.classList.remove("hidden");
+                liveIndicator.classList.add("flex");
+                status.textContent = "Live preview connected!";
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-green-500 flex-shrink-0";
+                break;
+              case "STATUS":
+                status.textContent = event.message || JSON.stringify(event);
+                break;
+              case "RESULT":
+                resultCard.classList.remove("hidden");
+                result.textContent = JSON.stringify(event.data || event, null, 2);
+                status.textContent = "Automation complete!";
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-green-500 flex-shrink-0";
+                liveIndicator.classList.add("hidden");
+                liveIndicator.classList.remove("flex");
+                break;
+              case "ERROR":
+                status.textContent = "Error: " + (event.message || JSON.stringify(event));
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0";
+                break;
+              default:
+                status.textContent = `[${event.type}] ${JSON.stringify(event)}`;
+            }
+          }
+        }
+      } catch (err) {
+        status.textContent = "Error: " + err.message;
+        statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0";
+        loading.classList.add("hidden");
+        placeholder.classList.remove("hidden");
+      }
+
+      btn.disabled = false;
+      btnText.textContent = "Start Automation";
+      btnIcon.classList.remove("animate-spin");
+      btnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"/>';
+    }
+  </script>
+</body>
+</html>
