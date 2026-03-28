@@ -38,8 +38,7 @@ For now, you'll need to log in to LinkedIn manually and handle any bot detection
 
 (4)No application status tracking yet
 
-(5) The code is ugly right now...
-
+(5) The code is ugly right now. Purely vided and need check and fix
 
 
 
